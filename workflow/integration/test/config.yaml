@@ -175,6 +175,11 @@ DATASETS:
           use_observed_lib_size: true
           max_epochs: 20
           early_stopping: true
+        scvix:
+          n_hidden: 128
+          dispersion: gene
+          max_epochs: 20
+          early_stopping: true
         scvi_vitkl:
           dispersion: gene-batch
           use_observed_lib_size: false

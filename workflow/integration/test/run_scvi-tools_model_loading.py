@@ -1,5 +1,7 @@
 import glob
+import sys
 import warnings
+from pathlib import Path
 from pprint import pformat
 from itertools import chain
 import numpy as np
@@ -28,6 +30,8 @@ if len(adata_files) == 0:
 import scvi
 import torch
 
+sys.path.append(str(Path(__file__).resolve().parents[1] / 'scripts' / 'methods'))
+
 for adata_file, model_file in zip(adata_files, model_files):
     logging.info(f'Checking {adata_file}...')
     with zarr.open(adata_file) as z:
@@ -52,6 +56,9 @@ for adata_file, model_file in zip(adata_files, model_files):
             model = scvi.model.SCVI.load(model_file, adata)
         elif method == 'scanvi':
             model = scvi.model.SCANVI.load(model_file, adata)
+        elif method == 'scvix':
+            from scvix import SCVIX
+            model = SCVIX.load(model_file, adata)
         else:
             raise ValueError(f'Unknown model for {adata_file}')
         logging.info(pformat(model))

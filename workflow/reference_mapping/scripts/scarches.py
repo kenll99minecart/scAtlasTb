@@ -54,6 +54,8 @@ logging.info(f'Inference only: {inference_only}')
 batch_key = model_params.pop('batch_key')
 labels_key = model_params.pop('labels_key', None)
 size_factor_key = model_params.pop('size_factor_key', None)
+assay_key = model_params.pop('assay_key', None)
+adversarial_group_key = model_params.pop('adversarial_group_key', None)
 categorical_covariate_keys = model_params.pop('categorical_covariate_keys', [])
 continuous_covariate_keys = model_params.pop('continuous_covariate_keys', [])
 
@@ -113,6 +115,8 @@ adata = _align_query_with_registry(
     batch_key=batch_key,
     labels_key=labels_key, # Note: called "labels_key" by SCVI
     size_factor_key=size_factor_key,
+    assay_key=assay_key,
+    adversarial_group_key=adversarial_group_key,
     categorical_covariate_keys=categorical_covariate_keys,
     continuous_covariate_keys=continuous_covariate_keys,
 )
