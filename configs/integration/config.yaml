@@ -30,15 +30,6 @@ defaults:
         # training params
         max_epochs: 10
         use_observed_lib_size: true
-      scvix:
-        n_latent: 30
-        n_hidden: 128
-        dispersion: gene
-        batch_representation: embedding
-        dropout_rate: 0.2
-        n_layers: 2
-        # training params
-        max_epochs: 10
       scanvi:
         n_latent: 30
         n_hidden: 128
