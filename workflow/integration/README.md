@@ -77,8 +77,8 @@ DATASETS:
         scvix:
           max_epochs: 100
           early_stopping: true
-          batch_representation: embedding
-          # assay_key: phase  # optional, defaults to the batch key
+          assay_key: assay # Mandatory
+          adversarial_group_key: adv_group
 
         scgen:
           n_epochs: 10

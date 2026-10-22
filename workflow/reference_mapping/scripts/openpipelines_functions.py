@@ -3,13 +3,11 @@ Taken and adjusted from https://github.com/openpipelines-bio/openpipeline/blob/m
 """
 
 from anndata import AnnData
-import importlib
 import scvi
 import pandas as pd
 import numpy as np
 from pathlib import Path
 import logging
-import sys
 import torch
 
 try:
@@ -17,14 +15,6 @@ try:
 except ModuleNotFoundError:
     drvi = None
 logging.basicConfig(level=logging.INFO)
-
-INTEGRATION_METHODS_DIR = Path(__file__).resolve().parents[2] / 'integration' / 'scripts' / 'methods'
-
-# Models vendored into the integration methods directory because they are not
-# released with scvi-tools yet. Remove entries once they ship upstream.
-LOCAL_MODEL_MODULES = {
-    'SCVIX': 'scvix',
-}
 
 # Monkey-patch torch.load to use CPU when CUDA unavailable
 if not torch.cuda.is_available():
@@ -40,16 +30,6 @@ def _read_model_name_from_registry(model_path) -> str:
     return registry["model_name"]
 
 
-def _load_local_model(model_name):
-    """Load a model class vendored into the integration methods directory"""
-    if model_name not in LOCAL_MODEL_MODULES:
-        return None
-    if str(INTEGRATION_METHODS_DIR) not in sys.path:
-        sys.path.append(str(INTEGRATION_METHODS_DIR))
-    module = importlib.import_module(LOCAL_MODEL_MODULES[model_name])
-    return getattr(module, model_name)
-
-
 def _detect_base_model(model_path):
     """Read from the model's file which scvi_tools model it contains"""
     model_name = _read_model_name_from_registry(model_path)
@@ -57,10 +37,6 @@ def _detect_base_model(model_path):
     for module in (scvi.model, scvi.external):
         if hasattr(module, model_name):
             return getattr(module, model_name)
-
-    local_model = _load_local_model(model_name)
-    if local_model is not None:
-        return local_model
 
     if drvi is not None and hasattr(drvi, "model") and hasattr(drvi.model, model_name):
         return getattr(drvi.model, model_name)
@@ -174,20 +150,6 @@ def _align_query_with_registry(adata_query, model_path, **kwargs):
             adata_query.obs[labels_key] = model_registry["unlabeled_category"]
         query_obs[model_labels_key] = adata_query.obs[labels_key].values
 
-    ## assay and adversarial group keys, relevant for SCVIX
-    for registry_key in ['assay_key', 'adversarial_group_key']:
-        model_key = model_registry.get(registry_key)
-        if not model_key:
-            continue
-        # the assay defaults to the batch column, mirroring the integration method setup
-        query_key = kwargs.get(registry_key) or kwargs.get('batch_key')
-        assert query_key, f"Expected {registry_key} to be provided"
-        assert query_key in adata_query.obs.columns, (
-            f"The provided {registry_key} '{query_key}' was not found in the query .obs "
-            f"{adata_query.obs.columns.tolist()}"
-        )
-        query_obs[model_key] = adata_query.obs[query_key].values
-
     ## covariate keys
     for registry_key in [
         'categorical_covariate_keys',
@@ -200,10 +162,6 @@ def _align_query_with_registry(adata_query, model_path, **kwargs):
     adata_query.var = pd.DataFrame(index=adata_query.var_names)
 
     if model_registry.get("layer"):
-        # the query is read with its counts in X, so default to X rather than a slot name
-        query_layer = kwargs.get("query_layer")
-        adata_query.layers[model_registry["layer"]] = (
-            adata_query.X if query_layer is None else query_layer
-        )
+        adata_query.layers[model_registry["layer"]] = kwargs.get("query_layer", "X")
 
     return adata_query

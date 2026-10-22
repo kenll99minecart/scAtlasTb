@@ -18,7 +18,6 @@ The following environments are needed for reference mapping:
 
 The module currently supports:
 - **scvi-tools models**: Various variational inference models (scVI, scANVI, etc.) mapping with scArches
-- **SCVIX**: loaded from the vendored placeholder in `integration/scripts/methods/scvix` until it ships with scvi-tools; map it with `env: scvix` (scvi-tools >= 1.4.1)
 - TODO: **scArches models**: VAE-based models (trVAE, scPoli, Expimap, etc.)
 - TODO: **Foundation models**: Large-scale pre-trained models
 
@@ -67,17 +66,12 @@ The reference model should be defined as a Pytorch model directory under `scarch
   - If `None`, uses the `.var` index (var_names)
   - Important for ensuring gene names are consistent between query and reference model
 
-- **`env`** (default: `'scvi-tools'`): Conda environment to run the mapping in
-  - Set to `scvix` for SCVIX reference models: their variational batch embeddings require the scArches surgery of scvi-tools >= 1.4.1
-
 #### Model Parameters (`model_params`)
 Parameters that align the query data structure with the reference model's expectations:
 
 - **`batch_key`**: Column name in `.obs` containing batch/sample information (required)
 - **`labels_key`**: Column name in `.obs` containing cell type labels (optional, can be `None` for unlabeled data)
 - **`size_factor_key`**: Column name in `.obs` containing size factors (optional, only if the reference model uses one)
-- **`assay_key`**: Column name in `.obs` containing assay information (optional, only for SCVIX models; defaults to the `batch_key` column)
-- **`adversarial_group_key`**: Column name in `.obs` containing adversarial groups (optional, only if the reference model uses one; defaults to the `batch_key` column)
 - **`categorical_covariate_keys`**: List of categorical covariate column names in `.obs` (optional, e.g., `["donor", "condition"]`)
 - **`continuous_covariate_keys`**: List of continuous covariate column names in `.obs` (optional, e.g., `["age", "BMI"]`)
 - Any remaining keys are passed to `load_query_data` of the model class.

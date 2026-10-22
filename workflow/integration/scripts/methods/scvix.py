@@ -1,19 +1,15 @@
 import warnings
 warnings.filterwarnings("ignore", message="Can't initialize NVML")
 
-import sys
 import torch
+import numpy as np
 import scvi
+from scvi.external import SCVIX
 from pathlib import Path
 from pprint import pformat
 import logging
 logging.basicConfig(level=logging.INFO)
 
-# snakemake executes a cached copy of this script whose directory shadows the
-# scvix package of the same name, so resolve imports from the real directory first
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-from scvix import SCVIX
 from integration_utils import add_metadata, get_hyperparams, remove_slots, set_model_history_dtypes, \
     SCVIX_MODEL_PARAMS, plot_model_history, clean_categorical_column
 from utils.io import read_anndata, write_zarr_linked
@@ -46,10 +42,21 @@ continuous_covariate_keys = model_params.pop('continuous_covariate_keys', [])
 if isinstance(continuous_covariate_keys, str):
     continuous_covariate_keys = [continuous_covariate_keys]
 
-# parse scvix-specific keys, defaulting the assay to the batch key
-assay_key = model_params.pop('assay_key', None) or batch_key
-labels_key = model_params.pop('labels_key', None)
-adversarial_group_key = model_params.pop('adversarial_group_key', None)
+# mandatory assay key
+try:
+    assay_key = model_params.pop('assay_key')
+except KeyError:
+    raise KeyError(
+        'assay_key is not configured, but is mandatory.'
+        'Please make sure to set it in your config file.'
+    )
+
+labels_key = model_params.pop('labels_key', None) # Cell_type labels in the style of SCANVI
+adversarial_group_key = model_params.pop('adversarial_group_key', None) # Adverserial classifier key in the latent space 
+
+# SCVIX asserts on .shape/.ndim of the vamp-prior pseudoinputs, so cast the config list to an array
+if model_params.get('pseudoinputs_data_indices') is not None:
+    model_params['pseudoinputs_data_indices'] = np.asarray(model_params['pseudoinputs_data_indices'])
 
 # set defaults for training parameters
 train_params.setdefault('check_val_every_n_epoch', 1) # needed to be able to plot loss curves
@@ -89,7 +96,7 @@ SCVIX.setup_anndata(
     assay_key=assay_key,
     labels_key=labels_key,
     adversarial_group_key=adversarial_group_key,
-    categorical_covariate_keys=categorical_covariate_keys, # Does not work with scArches
+    categorical_covariate_keys=categorical_covariate_keys,
     continuous_covariate_keys=continuous_covariate_keys,
 )
 

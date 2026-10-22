@@ -14,11 +14,7 @@ rule scarches:
     threads:
         lambda wildcards: mcfg.get_from_parameters(wildcards, 'threads', default=10, as_type=int)
     conda:
-        lambda wildcards: get_env(
-            config,
-            mcfg.get_from_parameters(wildcards, 'scarches', default={}).get('env', 'scvi-tools'),
-            env_dir='envs'
-        )
+        get_env(config, 'scvi-tools', env_dir='envs')
     resources:
         partition=mcfg.get_resource(profile='gpu',resource_key='partition'),
         gpu=mcfg.get_resource(profile='gpu',resource_key='gpu'),

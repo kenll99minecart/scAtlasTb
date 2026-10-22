@@ -65,17 +65,14 @@ SCVI_MODEL_PARAMS = [
 SCANVI_MODEL_PARAMS = SCVI_MODEL_PARAMS + ['linear_classifier']
 
 SCVIX_MODEL_PARAMS = SCVI_MODEL_PARAMS + [
-    'assay_key',
-    'labels_key',
-    'adversarial_group_key',
+    # scvix assay
+    'assay_key', # Mandatory 
+    # VampPrior
     'prior',
-    'batch_representation',
-    'batch_embedding_kwargs',
     'pseudoinputs_data_indices',
     'n_prior_components',
-    'encode_assay',
-    'conditional_norm',
-    'conditional_output',
+    'labels_key',
+    'adversarial_group_key',
 ]
 
 SYSVI_MODEL_PARAMS = SCVI_MODEL_PARAMS + [

@@ -183,9 +183,6 @@ DATASETS:
         scvi:
           max_epochs: 10
           early_stopping: true
-        scvix:
-          max_epochs: 10
-          early_stopping: true
         drvi:
           max_epochs: 10
           early_stopping: true
