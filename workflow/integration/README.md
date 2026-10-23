@@ -74,12 +74,6 @@ DATASETS:
           continuous_covariate_keys:
             - percent_mito
 
-        scvix:
-          max_epochs: 100
-          early_stopping: true
-          assay_key: assay # Mandatory
-          adversarial_group_key: adv_group
-
         scgen:
           n_epochs: 10
 
