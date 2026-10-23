@@ -54,9 +54,6 @@ except KeyError:
 labels_key = model_params.pop('labels_key', None) # Cell_type labels in the style of SCANVI
 adversarial_group_key = model_params.pop('adversarial_group_key', None) # Adverserial classifier key in the latent space 
 
-# SCVIX asserts on .shape/.ndim of the vamp-prior pseudoinputs, so cast the config list to an array
-if model_params.get('pseudoinputs_data_indices') is not None:
-    model_params['pseudoinputs_data_indices'] = np.asarray(model_params['pseudoinputs_data_indices'])
 
 # set defaults for training parameters
 train_params.setdefault('check_val_every_n_epoch', 1) # needed to be able to plot loss curves
