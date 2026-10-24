@@ -2,7 +2,6 @@ import warnings
 warnings.filterwarnings("ignore", message="Can't initialize NVML")
 
 import torch
-import numpy as np
 import scvi
 from scvi.external import SCVIX
 from pathlib import Path
@@ -24,6 +23,7 @@ Path(output_plot_dir).mkdir(parents=True, exist_ok=True)
 wildcards = snakemake.wildcards
 params = snakemake.params
 batch_key = wildcards.batch
+label_key = wildcards.label # Optional cell type labels in the style of SCANVI
 
 torch.set_float32_matmul_precision('medium')
 scvi.settings.seed = params.get('seed', 0)
@@ -51,7 +51,6 @@ except KeyError:
         'Please make sure to set it in your config file.'
     )
 
-labels_key = model_params.pop('labels_key', None) # Cell_type labels in the style of SCANVI
 adversarial_group_key = model_params.pop('adversarial_group_key', None) # Adverserial classifier key in the latent space 
 
 
@@ -79,6 +78,8 @@ adata = read_anndata(
 
 clean_categorical_column(adata, batch_key)
 clean_categorical_column(adata, assay_key)
+if label_key is not None and label_key != 'None':
+    clean_categorical_column(adata, label_key)
 
 # subset features
 adata, subsetted = subset_hvg(adata, var_column='integration_features')
@@ -91,7 +92,7 @@ SCVIX.setup_anndata(
     adata,
     batch_key=batch_key,
     assay_key=assay_key,
-    labels_key=labels_key,
+    labels_key=label_key if label_key != 'None' else None, # Optional cell type label, snakemake defaults to 'None' when no label params 
     adversarial_group_key=adversarial_group_key,
     categorical_covariate_keys=categorical_covariate_keys,
     continuous_covariate_keys=continuous_covariate_keys,

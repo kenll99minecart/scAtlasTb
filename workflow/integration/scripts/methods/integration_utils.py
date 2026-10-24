@@ -71,7 +71,6 @@ SCVIX_MODEL_PARAMS = SCVI_MODEL_PARAMS + [
     'prior',
     'pseudoinputs_data_indices',
     'n_prior_components',
-    'labels_key',
     'adversarial_group_key',
 ]
 
